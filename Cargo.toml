@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 clap.workspace = true
+
+raalog = { git = "https://github.com/AlexanderARodin/raalog.git", branch = "main" }
+# raalog = { path = "../../raalog" }
