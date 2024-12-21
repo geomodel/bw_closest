@@ -6,18 +6,13 @@ use raalog::{debug, error, info, trace, warn};
 
 //  //  //  //  //  //  //  //
 fn main() -> Result<()> {
-
-    println!("pwd: {:?}", std::env::current_dir()?);
-    println!("exe: {:?}", std::env::current_exe()?);
-
-
-    println!("parser intro");
     let args = CliArgs::parse();
 
-    println!("log: {:?}", args.log);
     let log_file = interpret_log_file_name(args.log);
-    println!("log file: {:?}", log_file);
     log_init(&log_file);
+    trace!("pwd: {:?}", std::env::current_dir()?);
+
+    trace!("############\n<-----\n.\n ");
     Ok(())
 }
 
@@ -30,9 +25,18 @@ fn log_init(log_file: &std::path::Path) {
         .set_level(raalog::LevelFilter::Trace);
 
     trace!("\n.\n----->\n############");
-    //set_panic_hook();
+    set_panic_hook();
 }
 
+fn set_panic_hook() {
+    let hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |info| {
+        error!("############\nFATAL!\n{}\n<-----\n.\n ", info);
+        hook(info);
+    }));
+}
+
+//  //  //  //  //  //  //  //
 fn interpret_log_file_name(arg: Option<String>) -> std::path::PathBuf {
     match arg {
         None => {
