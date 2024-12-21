@@ -10,7 +10,11 @@ fn main() -> Result<()> {
 
     let log_file = interpret_log_file_name(args.log);
     log_init(&log_file);
-    trace!("pwd: {:?}", std::env::current_dir()?);
+    debug!("pwd: {:?}", std::env::current_dir()?);
+    let i_max = args.i_max;
+    let j_max = args.j_max;
+    let k_max = args.k_max;
+    debug!("grid dimenstions: {}x{}x{}", i_max, j_max, k_max);
 
     trace!("############\n<-----\n.\n ");
     Ok(())
@@ -75,4 +79,10 @@ struct CliArgs {
     */
     #[arg(short, long)]
     log: Option<String>,
+    #[arg(short, long)]
+    i_max: u16,
+    #[arg(short, long)]
+    j_max: u16,
+    #[arg(short, long)]
+    k_max: u16,
 }
