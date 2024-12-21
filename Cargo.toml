@@ -8,4 +8,4 @@ anyhow.workspace = true
 clap.workspace = true
 
 raalog = { git = "https://github.com/AlexanderARodin/raalog.git", branch = "main" }
-# raalog = { path = "../../raalog" }
+properties3d = { git = "https://github.com/geomodel/properties3d.git", branch = "main" }

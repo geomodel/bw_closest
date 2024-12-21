@@ -5,19 +5,56 @@ use clap::Parser;
 use raalog::{debug, error, info, trace, warn};
 
 //  //  //  //  //  //  //  //
+mod calculations;
+
+#[derive(Parser, Debug)]
+#[command(about)]
+struct CliArgs {
+    #[arg(short, long)]
+    log: Option<String>,
+    #[arg(short, long)]
+    i_max: usize,
+    #[arg(short, long)]
+    j_max: usize,
+    #[arg(short, long)]
+    k_max: usize,
+    #[arg(long)]
+    actnum: Option<String>,
+    #[arg(long, default_value = "bw.ascii")]
+    bw: String,
+    #[arg(long, default_value = "result.ascii")]
+    result: String,
+    #[arg(long, default_value = "-999")]
+    undef_value: String,
+}
+
+//  //  //  //  //  //  //  //
 fn main() -> Result<()> {
     let args = CliArgs::parse();
 
     let log_file = interpret_log_file_name(args.log);
     log_init(&log_file);
     debug!("pwd: {:?}", std::env::current_dir()?);
-    let i_max = args.i_max;
-    let j_max = args.j_max;
-    let k_max = args.k_max;
-    debug!("grid dimenstions: {}x{}x{}", i_max, j_max, k_max);
 
-    trace!("############\n<-----\n.\n ");
-    Ok(())
+    let status = calculations::invoke(
+        args.i_max,
+        args.j_max,
+        args.k_max,
+        args.actnum.as_ref().map(|s| &**s),
+        &args.bw,
+        &args.result,
+        &args.undef_value,
+    );
+    match status {
+        Ok(()) => {
+            trace!("############\n<-----\n.\n ");
+        },
+        Err(ref e) => {
+            error!("############\nERROR!\n{}\n<-----\n.\n ", e.to_string());
+        },
+    };
+
+    status
 }
 
 //  //  //  //  //  //  //  //
@@ -48,41 +85,16 @@ fn interpret_log_file_name(arg: Option<String>) -> std::path::PathBuf {
             log.push("debug");
             log.set_extension("log");
             return log;
-        },
+        }
         Some(s) => {
             if s == "EXE" {
                 let mut log = std::env::current_exe().unwrap();
-                    log.pop();
-                    log.push("debug");
-                    log.set_extension("log");
+                log.pop();
+                log.push("debug");
+                log.set_extension("log");
                 return log;
             }
             return s.into();
-        },
+        }
     }
-}
-
-
-//  //  //  //  //  //  //  //
-#[derive(Parser, Debug)]
-#[command(about)]
-struct CliArgs {
-    /*
-    #[arg(short, long, default_value_t = false)]
-    uflA: bool,
-    #[arg(short, long, default_value_t = false)]
-    wflB: bool,
-    #[arg(short, long)]
-    commandName: String,
-    #[arg(short, long, default_value_t = 0)]
-    value: u8,
-    */
-    #[arg(short, long)]
-    log: Option<String>,
-    #[arg(short, long)]
-    i_max: u16,
-    #[arg(short, long)]
-    j_max: u16,
-    #[arg(short, long)]
-    k_max: u16,
 }
