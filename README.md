@@ -1,4 +1,4 @@
-# bw_distance
+# Closest3D
 alg for testing: Closest 3D
 
 ## todo
