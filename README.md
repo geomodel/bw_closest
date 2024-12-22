@@ -7,4 +7,4 @@ alg for testing: Closest 3D
 - [X] add required cli args for grid dimensions
 - [X] add properties3d
 - [X] add 'real' algorithm
-- [ ] add optional Actnum
+- [X] add optional Actnum
