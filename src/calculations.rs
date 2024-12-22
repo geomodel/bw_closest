@@ -29,7 +29,7 @@ pub(crate) fn invoke(
     );
     if let Ok(()) = std::fs::remove_file(result_file) {
         debug!("old result_file <{}> has been deleted", result_file);
-    }else{
+    } else {
         debug!("there no (yet) result_file <{}> for deleting", result_file);
     }
 
@@ -39,10 +39,6 @@ pub(crate) fn invoke(
     let mut result = plib::Property::<plib::Continuous>::new(g.get_size());
 
     for grid_index in 0..g.get_size() {
-        //let plib::IJK{i, j, k} = g.index_to_coord(grid_index).unwrap();
-        //let plib::IJK{i, j, k} = g.index_to_coord(grid_index).unwrap();
-        //new_value = Some((1000 + (1+i)*100 + (1+j)*10 + (1+k)) as plib::Continuous);
-
         let coord = g.index_to_coord(grid_index).unwrap();
         let nearest_value = find_nearest(coord, &bw, &k_mult);
 
@@ -59,11 +55,11 @@ where
     T: std::str::FromStr + Clone,
 {
     let mut nearest = bw.get_via_index(0);
-    let mut dist = calc_distance(&coord, &nearest.0, &k_mult);
+    let mut dist = distance(&coord, &nearest.0, &k_mult);
 
     for bw_index in 1..bw.len() {
         let alt_bw = bw.get_via_index(bw_index);
-        let alt_dist = calc_distance(&coord, &alt_bw.0, &k_mult);
+        let alt_dist = distance(&coord, &alt_bw.0, &k_mult);
         if alt_dist < dist {
             nearest = alt_bw;
             dist = alt_dist;
@@ -73,10 +69,76 @@ where
     return nearest.1.clone();
 }
 
-fn calc_distance(a: &plib::IJK, b: &plib::IJK, k_mult: &f64) -> f64 {
-    let di = (a.i - b.i) as f64;
-    let dj = (a.j - b.j) as f64;
-    let dk = k_mult * (a.k - b.k) as f64;
+fn distance(a: &plib::IJK, b: &plib::IJK, k_mult: &f64) -> f64 {
+    let di = a.i as f64 - b.i as f64;
+    let dj = a.j as f64 - b.j as f64;
+    let dk = a.k as f64 - b.k as f64;
 
-    return (di*di + dj*dj + dk*dk).sqrt();
+    return (di*di + dj*dj + k_mult*k_mult * dk*dk).sqrt();
+}
+
+//  //  //  //  //  //  //  //
+//        TESTS             //
+//  //  //  //  //  //  //  //
+#[cfg(test)]
+mod calculus {
+    use super::*;
+
+
+    #[test]
+    fn one_k_mult_10() {
+        let a = plib::IJK { i: 0, j: 0, k: 0 };
+        let b = plib::IJK { i: 0, j: 0, k: 1 };
+        let dist_ab = distance(&a, &b, &10.0);
+        let dist_ba = distance(&b, &a, &10.0);
+        assert!(dist_ab == 10.0);
+        assert!(dist_ba == 10.0);
+    }
+
+    #[test]
+    fn two_k() {
+        let a = plib::IJK { i: 0, j: 0, k: 0 };
+        let b = plib::IJK { i: 0, j: 0, k: 2 };
+        let dist_ab = distance(&a, &b, &1.0);
+        let dist_ba = distance(&b, &a, &1.0);
+        assert!(dist_ab == 2.0);
+        assert!(dist_ba == 2.0);
+    }
+    #[test]
+    fn two_j() {
+        let a = plib::IJK { i: 0, j: 0, k: 0 };
+        let b = plib::IJK { i: 0, j: 2, k: 0 };
+        let dist_ab = distance(&a, &b, &1.0);
+        let dist_ba = distance(&b, &a, &1.0);
+        assert!(dist_ab == 2.0);
+        assert!(dist_ba == 2.0);
+    }
+    #[test]
+    fn two_i() {
+        let a = plib::IJK { i: 0, j: 0, k: 0 };
+        let b = plib::IJK { i: 2, j: 0, k: 0 };
+        let dist_ab = distance(&a, &b, &1.0);
+        let dist_ba = distance(&b, &a, &1.0);
+        assert!(dist_ab == 2.0);
+        assert!(dist_ba == 2.0);
+    }
+
+    #[test]
+    fn zero_1() {
+        let a = plib::IJK { i: 1, j: 1, k: 1 };
+        let b = plib::IJK { i: 1, j: 1, k: 1 };
+        let dist_ab = distance(&a, &b, &1.0);
+        let dist_ba = distance(&b, &a, &1.0);
+        assert!(dist_ab == 0.0);
+        assert!(dist_ba == 0.0);
+    }
+    #[test]
+    fn zero_0() {
+        let a = plib::IJK { i: 0, j: 0, k: 0 };
+        let b = plib::IJK { i: 0, j: 0, k: 0 };
+        let dist_ab = distance(&a, &b, &1.0);
+        let dist_ba = distance(&b, &a, &1.0);
+        assert!(dist_ab == 0.0);
+        assert!(dist_ba == 0.0);
+    }
 }
