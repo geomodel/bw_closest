@@ -1,5 +1,5 @@
 # bw_distance
-alg for testing: generate distance to bw
+alg for testing: Closest 3D
 
 ## todo
 - [X] add logging
