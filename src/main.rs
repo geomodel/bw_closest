@@ -26,6 +26,8 @@ struct CliArgs {
     result: String,
     #[arg(long, default_value = "-999")]
     undef_value: String,
+    #[arg(long, default_value_t = 1.0)]
+    k_mult: f64,
 }
 
 //  //  //  //  //  //  //  //
@@ -44,6 +46,7 @@ fn main() -> Result<()> {
         &args.bw,
         &args.result,
         &args.undef_value,
+        args.k_mult,
     );
     match status {
         Ok(()) => {
