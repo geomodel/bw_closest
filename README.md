@@ -5,5 +5,5 @@ alg for testing: generate distance to bw
 - [X] add logging
 - [X] check what is pwd during real invoking
 - [X] add required cli args for grid dimensions
-- [ ] add properties3d
+- [X] add properties3d
 - [ ] add 'real' algorithm
